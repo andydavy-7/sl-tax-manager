@@ -1,0 +1,17 @@
+source_name,type,month,income,tax_deducted,tax_withheld_at_source
+ABC Pvt Ltd,employment,Apr 2025,300000,30000,yes
+ABC Pvt Ltd,employment,May 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Jun 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Jul 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Aug 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Sep 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Oct 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Nov 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Dec 2025,300000,30000,yes
+ABC Pvt Ltd,employment,Jan 2026,300000,30000,yes
+ABC Pvt Ltd,employment,Feb 2026,300000,30000,yes
+ABC Pvt Ltd,employment,Mar 2026,300000,30000,yes
+XYZ Consultancy,consultancy,Jan 2026,200000,0,no
+XYZ Consultancy,consultancy,Feb 2026,200000,0,no
+XYZ Consultancy,consultancy,Mar 2026,200000,0,no
+Bank Interest,interest,Mar 2026,5000,250,yes

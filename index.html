@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SL Personal Income Tax Manager</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+
+<style>
+  :root {
+    /* Surfaces */
+    --bg: #fafafa;
+    --bg-subtle: #f4f4f5;
+    --card-bg: #ffffff;
+
+    /* Borders */
+    --border: #e5e5e5;
+    --border-strong: #d4d4d8;
+
+    /* Text */
+    --text: #0a0a0a;
+    --text-secondary: #404040;
+    --text-muted: #71717a;
+    --text-faint: #a1a1aa;
+
+    /* Accent — refined teal */
+    --accent: #0d9488;
+    --accent-hover: #0f766e;
+    --accent-bg: #f0fdfa;
+    --accent-ring: rgba(13, 148, 136, 0.18);
+
+    /* Semantic */
+    --danger: #dc2626;
+    --danger-hover: #b91c1c;
+    --danger-bg: #fef2f2;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius:    10px;
+    --radius-lg: 14px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow:    0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+
+    /* Fonts — all JetBrains Mono */
+    --font-sans: 'JetBrains Mono', ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-sans);
+    font-feature-settings: 'tnum', 'zero', 'calt' off;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+  }
+
+  /* Numeric typography — used wherever digits are displayed for alignment */
+  .num,
+  .mono,
+  input[type="number"],
+  input[inputmode="decimal"],
+  .grand-total span:last-child,
+  .summary-row > span:last-child,
+  .field-value,
+  .per-source-table td.num,
+  .per-source-table th.num,
+  .slab-table td.num,
+  .slab-table th.num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+    font-feature-settings: 'tnum', 'zero';
+    letter-spacing: -0.02em;
+  }
+
+  .app-header {
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    flex-wrap: wrap;
+  }
+
+  .app-header h1 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .app-header h1 .brand-mark {
+    width: 26px; height: 26px;
+    border-radius: 7px;
+    background: var(--accent);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .app-header h1 .subtitle {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 4px;
+    padding-left: 10px;
+    border-left: 1px solid var(--border);
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  button {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--card-bg);
+    border: 1px solid var(--border-strong);
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, transform 0.06s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+  }
+  button:hover { background: var(--bg-subtle); border-color: var(--text-muted); }
+  button:active { transform: translateY(0.5px); }
+  button:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-ring); border-color: var(--accent); }
+  button svg { width: 14px; height: 14px; flex-shrink: 0; }
+  button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button.danger { color: var(--danger); border-color: var(--border-strong); }
+  button.danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+  button.small { padding: 5px 9px; font-size: 12px; }
+  button.small svg { width: 13px; height: 13px; }
+  button.icon-only { padding: 7px; }
+  button.icon-only.small { padding: 5px; }
+  button.ghost { background: transparent; border-color: transparent; color: var(--text-muted); }
+  button.ghost:hover { background: var(--bg-subtle); color: var(--text); }
+
+  /* Toolbar separator */
+  .toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+
+  .layout {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .summary-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .summary-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 16px;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 800px) {
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .card.no-pad { padding: 0; }
+
+  /* Empty state */
+  .empty-state {
+    background: var(--card-bg);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 48px 24px;
+    text-align: center;
+    box-shadow: none;
+    margin-bottom: 14px;
+  }
+  .empty-state .icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .empty-state .icon-wrap svg { width: 26px; height: 26px; }
+  .empty-state h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .empty-state p {
+    margin: 0 0 20px;
+    color: var(--text-muted);
+    font-size: 13px;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.55;
+  }
+  .empty-state button { margin: 0 auto; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-title svg { width: 13px; height: 13px; opacity: 0.7; }
+  .card-title-sm { font-size: 10px; }
+
+  input, select {
+    font: inherit;
+    font-size: 13px;
+    border: 1px solid var(--border-strong);
+    padding: 7px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  }
+  input:hover, select:hover { border-color: var(--text-muted); }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-ring);
+  }
+  input[type="number"],
+  input[inputmode="decimal"] {
+    text-align: right;
+  }
+  input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--accent);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .settings-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .source-card-head {
+    display: grid;
+    grid-template-columns: 2fr 150px auto auto;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 700px) {
+    .source-card-head { grid-template-columns: 1fr; }
+  }
+
+  .source-card-head .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .bulk-fill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .bulk-fill .label {
+    min-width: 130px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  .bulk-fill input { width: 150px; }
+  .bulk-fill.hidden { display: none; }
+
+  .month-grid-wrap {
+    overflow-x: auto;
+    margin: 12px -4px 12px;
+    padding: 0 4px;
+  }
+  .month-grid {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 720px;
+  }
+  .month-grid th {
+    text-align: center;
+    font-weight: 500;
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 4px 8px;
+  }
+  .month-grid td { padding: 2px; }
+  .month-grid td input {
+    font-size: 13px;
+    padding: 5px 6px;
+    min-width: 78px;
+  }
+  .month-grid th.row-header,
+  .month-grid td.row-header {
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-right: 12px;
+    white-space: nowrap;
+    width: 110px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .month-grid tr.tax-row.hidden { display: none; }
+
+  .source-subtotal {
+    display: flex;
+    gap: 24px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .source-subtotal .field-label { color: var(--text-muted); margin-right: 6px; }
+  .source-subtotal .field-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    font-variant-numeric: tabular-nums;
+    gap: 12px;
+  }
+  .summary-row.muted { color: var(--text-muted); }
+  .summary-row.divider {
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding-top: 10px;
+  }
+  .summary-row.bold { font-weight: 600; }
+
+  .grand-total {
+    margin: 18px -20px -18px;
+    padding: 22px 22px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-weight: 600;
+    font-size: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    background: #fef3c7;
+    color: #92400e;
+    border-top: 2px solid #f59e0b;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    letter-spacing: -0.02em;
+  }
+  .grand-total.refund {
+    background: #d1fae5;
+    color: #065f46;
+    border-top-color: #10b981;
+  }
+  .grand-total .label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.9;
+    font-family: var(--font-sans);
+  }
+
+  .slab-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .slab-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 10px 8px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-sans);
+  }
+  .slab-table td { padding: 9px 8px; }
+  .slab-table tr + tr td { border-top: 1px solid var(--border); }
+  .slab-table td.num,
+  .slab-table th.num { text-align: right; }
+  .slab-table tr.unused { color: var(--text-faint); }
+  .slab-table tr.total td {
+    font-weight: 600;
+    border-top: 2px solid var(--text);
+    padding-top: 12px;
+    color: var(--text);
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    vertical-align: middle;
+    line-height: 1.4;
+    font-family: var(--font-sans);
+  }
+  .badge.employment { background: #eff6ff; color: #1d4ed8; }
+  .badge.consultancy { background: #fef3c7; color: #92400e; }
+  .badge.interest { background: #ecfdf5; color: #047857; }
+  .badge.other { background: #f5f3ff; color: #6d28d9; }
+
+  .empty {
+    padding: 32px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .footer-note {
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 12px;
+    padding: 24px 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .footer-note svg { width: 13px; height: 13px; opacity: 0.7; }
+
+  .name-input { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+
+  .per-source-table-wrap { overflow-x: auto; }
+  .per-source-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    min-width: 360px;
+  }
+  .per-source-table th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .per-source-table td { padding: 10px 6px; vertical-align: middle; }
+  .per-source-table tr + tr td { border-top: 1px solid var(--border); }
+  .per-source-table td.num,
+  .per-source-table th.num { text-align: right; }
+  .per-source-table th {
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    padding: 10px 6px;
+  }
+  .per-source-table .src-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.3;
+  }
+  .per-source-table .src-name .nm { font-weight: 500; color: var(--text); }
+  .per-source-table .pos { color: var(--warning); font-weight: 600; }
+  .per-source-table .neg { color: var(--success); font-weight: 600; }
+  .per-source-table .zero { color: var(--text-muted); }
+  .per-source-table tr.totals td {
+    font-weight: 600;
+    border-top: 2px solid var(--text);
+    padding-top: 12px;
+    color: var(--text);
+  }
+
+  /* Reusable icon size util */
+  .ico-sm { width: 14px; height: 14px; }
+  .ico    { width: 16px; height: 16px; }
+  .ico-lg { width: 20px; height: 20px; }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>
+    <span class="brand-mark">LK</span>
+    SL Personal Income Tax Manager
+    <span class="subtitle">FY <span id="fy-label-display">2025/26</span></span>
+  </h1>
+  <div class="toolbar">
+    <button class="primary" onclick="addSource()" title="Add new income source">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      <span>Add Source</span>
+    </button>
+    <div class="toolbar-sep"></div>
+    <button onclick="exportJSON()" title="Download data as JSON">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      <span>Export</span>
+    </button>
+    <button onclick="importJSON()" title="Import data from JSON file">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+      <span>Import</span>
+    </button>
+    <div class="toolbar-sep"></div>
+    <button class="danger" onclick="clearAll()" title="Clear all data">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+      <span>Clear all</span>
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+        Settings
+      </h2>
+    </div>
+    <div class="settings-grid">
+      <label>FY Label
+        <input type="text" id="fy-label">
+      </label>
+      <label>Personal Relief (LKR)
+        <input type="text" inputmode="decimal" id="personal-relief"
+               onfocus="focusSelect(this)">
+      </label>
+    </div>
+  </div>
+
+  <div id="sources-container"></div>
+
+  <div class="summary-section">
+    <h2 class="summary-section-title">Tax Summary</h2>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+          Income &amp; Tax Deducted
+        </h2>
+      </div>
+      <div id="income-breakdown"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          Slab Breakdown
+        </h2>
+      </div>
+      <div id="slab-breakdown"></div>
+    </div>
+
+    <div class="card" style="padding-bottom: 0;">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v17"/><path d="M3 8h11"/><path d="M3 12h11"/><path d="M3 16h11"/><path d="m17 8 4 4-4 4"/></svg>
+          Reconciliation
+        </h2>
+      </div>
+      <div id="reconciliation"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-note">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  Data saved locally to this browser — use Export to back up.
+</div>
+
+<input type="file" id="import-file" accept=".json" style="display:none">
+
+<script>
+const STORAGE_KEY = 'slTaxManager_v1';
+const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+
+const SLABS = [
+  { band: 1000000, rate: 0.06, label: 'First 1,000,000' },
+  { band: 500000,  rate: 0.18, label: 'Next 500,000' },
+  { band: 500000,  rate: 0.24, label: 'Next 500,000' },
+  { band: 500000,  rate: 0.30, label: 'Next 500,000' },
+  { band: Infinity, rate: 0.36, label: 'Balance' }
+];
+
+let state = {
+  fyLabel: '2025/26',
+  personalRelief: 1800000,
+  sources: []
+};
+
+function uuid() { return 'src-' + Math.random().toString(36).slice(2, 11); }
+
+function emptyMonths() {
+  return Array.from({ length: 12 }, () => ({ income: 0, tax: 0 }));
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.sources)) {
+        state = normalizeState(parsed);
+        return;
+      }
+    }
+  } catch (e) { /* fall through to defaults */ }
+  state = { fyLabel: '2025/26', personalRelief: 1800000, sources: [] };
+  save();
+}
+
+function normalizeState(parsed) {
+  const validTypes = ['employment', 'consultancy', 'interest', 'other'];
+  return {
+    fyLabel: String(parsed.fyLabel || '2025/26'),
+    personalRelief: Number(parsed.personalRelief) || 1800000,
+    sources: parsed.sources.map(s => ({
+      id: s && s.id ? String(s.id) : uuid(),
+      name: String(s && s.name || 'Unnamed'),
+      type: validTypes.includes(s && s.type) ? s.type : 'other',
+      taxWithheld: !!(s && s.taxWithheld),
+      months: Array.isArray(s && s.months) && s.months.length === 12
+        ? s.months.map(m => ({
+            income: Number(m && m.income) || 0,
+            tax:    Number(m && m.tax)    || 0
+          }))
+        : emptyMonths()
+    }))
+  };
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function fmt(n) {
+  if (typeof n !== 'number' || !isFinite(n)) return '0.00';
+  return n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtInt(n) {
+  if (typeof n !== 'number' || !isFinite(n)) return '0';
+  return n.toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+// Parse a user-entered numeric string. Strips commas and any non-numeric chars
+// except digits, decimal point, and leading minus. Returns 0 for empty/invalid.
+function parseNum(str) {
+  if (typeof str === 'number') return isFinite(str) ? str : 0;
+  if (str == null || str === '') return 0;
+  const cleaned = String(str).replace(/,/g, '').replace(/[^\d.\-]/g, '');
+  const n = Number(cleaned);
+  return isFinite(n) ? n : 0;
+}
+
+// Format a number for display inside an input field. 0/empty → blank.
+// Uses up to 2 decimal places, with thousand separators.
+function fmtInput(n) {
+  const num = parseNum(n);
+  if (num === 0) return '';
+  return num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
+// Reformat an input field's value on blur.
+function formatField(input) {
+  input.value = fmtInput(input.value);
+}
+
+// Select all on focus so typing replaces the whole formatted value cleanly.
+function focusSelect(input) {
+  setTimeout(() => input.select(), 0);
+}
+
+// Live-format numeric strings: "400000" → "400,000". Preserves in-progress
+// decimal entries like "100." and "1.5".
+function fmtLiveString(str) {
+  if (!str) return '';
+  let s = String(str).replace(/,/g, '').replace(/[^\d.\-]/g, '');
+  let negative = '';
+  if (s.startsWith('-')) { negative = '-'; s = s.slice(1); }
+  const dotIdx = s.indexOf('.');
+  let intPart, decPart;
+  if (dotIdx === -1) {
+    intPart = s;
+    decPart = '';
+  } else {
+    intPart = s.slice(0, dotIdx);
+    decPart = '.' + s.slice(dotIdx + 1).replace(/\./g, '');
+  }
+  const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return negative + formattedInt + decPart;
+}
+
+// Reformat input value live while preserving cursor position.
+function formatLive(input) {
+  const oldValue = input.value;
+  const cursorPos = input.selectionStart;
+
+  // Count digit-like chars before cursor in OLD value
+  let realCharsBefore = 0;
+  for (let i = 0; i < cursorPos; i++) {
+    if (/[\d.\-]/.test(oldValue[i])) realCharsBefore++;
+  }
+
+  const newValue = fmtLiveString(oldValue);
+  if (newValue === oldValue) return;
+
+  input.value = newValue;
+
+  // Re-position cursor after the same number of digit-like chars in NEW value
+  let newCursor = newValue.length;
+  let count = 0;
+  for (let i = 0; i < newValue.length; i++) {
+    if (count >= realCharsBefore) { newCursor = i; break; }
+    if (/[\d.\-]/.test(newValue[i])) count++;
+  }
+  input.setSelectionRange(newCursor, newCursor);
+}
+
+function calculateTax(taxable) {
+  let remaining = Math.max(0, taxable);
+  let totalTax = 0;
+  const breakdown = [];
+  for (const slab of SLABS) {
+    const taxedInBand = Math.min(remaining, slab.band);
+    const tax = taxedInBand * slab.rate;
+    breakdown.push({ ...slab, taxable: taxedInBand, tax });
+    totalTax += tax;
+    remaining -= taxedInBand;
+  }
+  return { totalTax, breakdown };
+}
+
+function sourceTotals(s) {
+  let income = 0, tax = 0;
+  for (const m of s.months) {
+    income += Number(m.income) || 0;
+    if (s.taxWithheld) tax += Number(m.tax) || 0;
+  }
+  return { income, tax };
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function findSource(id) { return state.sources.find(s => s.id === id); }
+
+// ── Rendering ─────────────────────────────────────────────────────────────
+
+function renderAll() {
+  document.getElementById('fy-label').value = state.fyLabel;
+  document.getElementById('fy-label-display').textContent = state.fyLabel;
+  document.getElementById('personal-relief').value = fmtInput(state.personalRelief);
+  renderSources();
+  renderSummary();
+  save();
+}
+
+function renderSources() {
+  const container = document.getElementById('sources-container');
+  if (state.sources.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        </div>
+        <h3>No income sources yet</h3>
+        <p>Add your salaries, consultancy income, bank interest, and any other earnings for FY ${escapeHtml(state.fyLabel)}.</p>
+        <button class="primary" onclick="addSource()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          <span>Add your first source</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+  container.innerHTML = state.sources.map(renderSourceCard).join('');
+}
+
+function renderSourceCard(s) {
+  const totals = sourceTotals(s);
+  const showTax = !!s.taxWithheld;
+
+  return `
+    <div class="card source-card" data-id="${s.id}">
+      <div class="source-card-head">
+        <input class="name-input" type="text" value="${escapeHtml(s.name)}"
+               oninput="onSourceNameChange('${s.id}', this.value)" placeholder="Source name">
+        <select onchange="onSourceTypeChange('${s.id}', this.value)">
+          <option value="employment"  ${s.type === 'employment'  ? 'selected' : ''}>Employment</option>
+          <option value="consultancy" ${s.type === 'consultancy' ? 'selected' : ''}>Consultancy</option>
+          <option value="interest"    ${s.type === 'interest'    ? 'selected' : ''}>Interest</option>
+          <option value="other"       ${s.type === 'other'       ? 'selected' : ''}>Other</option>
+        </select>
+        <label class="checkbox-label">
+          <input type="checkbox" ${showTax ? 'checked' : ''}
+                 onchange="onTaxWithheldToggle('${s.id}', this.checked)">
+          Tax withheld at source
+        </label>
+        <button class="danger small icon-only" onclick="removeSource('${s.id}')" title="Remove source" aria-label="Remove source">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        </button>
+      </div>
+
+      <div class="bulk-fill">
+        <span class="label">Bulk-fill income:</span>
+        <input type="text" inputmode="decimal" placeholder="Amount" id="bulk-income-${s.id}"
+               onfocus="focusSelect(this)" onblur="formatField(this)">
+        <button class="small" onclick="bulkFill('${s.id}', 'income')">
+          <span>Apply to all</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <div class="bulk-fill tax-bulk-${s.id} ${showTax ? '' : 'hidden'}">
+        <span class="label">Bulk-fill tax withheld:</span>
+        <input type="text" inputmode="decimal" placeholder="Amount" id="bulk-tax-${s.id}"
+               onfocus="focusSelect(this)" onblur="formatField(this)">
+        <button class="small" onclick="bulkFill('${s.id}', 'tax')">
+          <span>Apply to all</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <div class="month-grid-wrap">
+        <table class="month-grid">
+          <thead>
+            <tr>
+              <th class="row-header"></th>
+              ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-header">Income</td>
+              ${s.months.map((m, i) => `
+                <td><input type="text" inputmode="decimal" value="${fmtInput(m.income)}"
+                           oninput="onMonthChange('${s.id}', ${i}, 'income', this.value)"
+                           onfocus="focusSelect(this)" onblur="formatField(this)"></td>
+              `).join('')}
+            </tr>
+            <tr class="tax-row tax-row-${s.id} ${showTax ? '' : 'hidden'}">
+              <td class="row-header">Tax withheld</td>
+              ${s.months.map((m, i) => `
+                <td><input type="text" inputmode="decimal" value="${fmtInput(m.tax)}"
+                           oninput="onMonthChange('${s.id}', ${i}, 'tax', this.value)"
+                           onfocus="focusSelect(this)" onblur="formatField(this)"></td>
+              `).join('')}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="source-subtotal" id="subtotal-${s.id}">
+        ${renderSubtotalInner(s)}
+      </div>
+    </div>
+  `;
+}
+
+function renderSubtotalInner(s) {
+  const totals = sourceTotals(s);
+  let html = `<div><span class="field-label">Total Income:</span><span class="field-value">LKR ${fmt(totals.income)}</span></div>`;
+  if (s.taxWithheld) {
+    html += `<div><span class="field-label">Total Tax Withheld:</span><span class="field-value">LKR ${fmt(totals.tax)}</span></div>`;
+  }
+  return html;
+}
+
+function renderSummary() {
+  // First pass: collect totals
+  const sourceData = state.sources.map(s => {
+    const t = sourceTotals(s);
+    return { source: s, income: t.income, withheld: t.tax };
+  });
+
+  const totalIncome = sourceData.reduce((acc, d) => acc + d.income, 0);
+  const totalTaxWithheld = sourceData.reduce((acc, d) => acc + d.withheld, 0);
+
+  // Income & Tax Deducted
+  renderIncomeBreakdown(sourceData, totalIncome, totalTaxWithheld);
+
+  const relief = Number(state.personalRelief) || 0;
+  const taxable = Math.max(0, totalIncome - relief);
+  const { totalTax, breakdown } = calculateTax(taxable);
+
+  const slabRows = breakdown.map(b => `
+    <tr class="${b.taxable === 0 ? 'unused' : ''}">
+      <td>${b.label}</td>
+      <td class="num">${(b.rate * 100).toFixed(0)}%</td>
+      <td class="num">${fmt(b.taxable)}</td>
+      <td class="num">${fmt(b.tax)}</td>
+    </tr>
+  `).join('');
+
+  const effectiveRate = totalIncome > 0 ? (totalTax / totalIncome) * 100 : 0;
+
+  document.getElementById('slab-breakdown').innerHTML = `
+    <div class="summary-row muted"><span>Total Income</span><span>${fmt(totalIncome)}</span></div>
+    <div class="summary-row muted"><span>Less: Personal Relief</span><span>− ${fmt(relief)}</span></div>
+    <div class="summary-row bold divider"><span>Taxable Income</span><span>LKR ${fmt(taxable)}</span></div>
+    <table class="slab-table" style="margin-top:14px">
+      <thead>
+        <tr><th>Band</th><th class="num">Rate</th><th class="num">Taxable</th><th class="num">Tax</th></tr>
+      </thead>
+      <tbody>
+        ${slabRows}
+        <tr class="total">
+          <td colspan="3">Total Tax Payable</td>
+          <td class="num">${fmt(totalTax)}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="summary-row muted" style="margin-top:10px;font-size:12px">
+      <span>Effective rate (tax ÷ total income)</span>
+      <span>${effectiveRate.toFixed(2)}%</span>
+    </div>
+  `;
+
+  const balance = totalTax - totalTaxWithheld;
+  const isRefund = balance < -0.005;
+  const isSettled = Math.abs(balance) < 0.005;
+
+  let grandLabel, grandClass;
+  if (isRefund) {
+    grandLabel = 'Refund Due';
+    grandClass = 'refund';
+  } else if (isSettled) {
+    grandLabel = 'Settled';
+    grandClass = 'refund';
+  } else {
+    grandLabel = 'Balance Tax to Pay';
+    grandClass = '';
+  }
+
+  document.getElementById('reconciliation').innerHTML = `
+    <div class="summary-row"><span>Tax Payable</span><span>${fmt(totalTax)}</span></div>
+    <div class="summary-row muted"><span>Less: Tax Withheld at Source</span><span>− ${fmt(totalTaxWithheld)}</span></div>
+    <div class="grand-total ${grandClass}">
+      <span class="label">${grandLabel}</span>
+      <span>LKR ${fmt(Math.abs(balance))}</span>
+    </div>
+  `;
+}
+
+function renderIncomeBreakdown(sourceData, totalIncome, totalTaxWithheld) {
+  const container = document.getElementById('income-breakdown');
+
+  if (sourceData.length === 0) {
+    container.innerHTML = '<div class="summary-row muted"><span>No sources added yet</span></div>';
+    return;
+  }
+
+  const rows = sourceData.map(d => `
+    <tr>
+      <td>
+        <div class="src-name">
+          <span class="badge ${d.source.type}">${d.source.type}</span>
+          <span class="nm">${escapeHtml(d.source.name)}</span>
+        </div>
+      </td>
+      <td class="num">${fmt(d.income)}</td>
+      <td class="num">${fmt(d.withheld)}</td>
+    </tr>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="per-source-table-wrap">
+    <table class="per-source-table">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th class="num">Income</th>
+          <th class="num">Tax Deducted</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+        <tr class="totals">
+          <td>Total</td>
+          <td class="num">${fmt(totalIncome)}</td>
+          <td class="num">${fmt(totalTaxWithheld)}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  `;
+}
+
+function updateSubtotal(id) {
+  const s = findSource(id); if (!s) return;
+  const el = document.getElementById('subtotal-' + id);
+  if (el) el.innerHTML = renderSubtotalInner(s);
+}
+
+// ── Event handlers ────────────────────────────────────────────────────────
+
+function onSourceNameChange(id, val) {
+  const s = findSource(id); if (!s) return;
+  s.name = val;
+  save();
+  renderSummary();
+}
+
+function onSourceTypeChange(id, val) {
+  const s = findSource(id); if (!s) return;
+  s.type = val;
+  save();
+  renderSummary();
+}
+
+function onTaxWithheldToggle(id, checked) {
+  const s = findSource(id); if (!s) return;
+  s.taxWithheld = checked;
+  // Surgical: toggle tax row and bulk-fill visibility, update subtotal, update summary
+  document.querySelectorAll(`.tax-row-${id}, .tax-bulk-${id}`).forEach(el => {
+    el.classList.toggle('hidden', !checked);
+  });
+  updateSubtotal(id);
+  save();
+  renderSummary();
+}
+
+function onMonthChange(id, monthIdx, field, val) {
+  const s = findSource(id); if (!s) return;
+  s.months[monthIdx][field] = parseNum(val);
+  updateSubtotal(id);
+  save();
+  renderSummary();
+}
+
+function bulkFill(id, field) {
+  const s = findSource(id); if (!s) return;
+  const input = document.getElementById(`bulk-${field}-${id}`);
+  const val = parseNum(input.value);
+  for (const m of s.months) m[field] = val;
+  renderAll();
+}
+
+function addSource() {
+  state.sources.push({
+    id: uuid(),
+    name: 'New Source',
+    type: 'employment',
+    taxWithheld: false,
+    months: emptyMonths()
+  });
+  renderAll();
+}
+
+function removeSource(id) {
+  const s = findSource(id);
+  if (!s) return;
+  if (!confirm(`Remove "${s.name}"?`)) return;
+  state.sources = state.sources.filter(x => x.id !== id);
+  renderAll();
+}
+
+function clearAll() {
+  if (state.sources.length === 0) return;
+  if (!confirm('Clear ALL data? This cannot be undone (unless you re-import a backup).')) return;
+  state = { fyLabel: state.fyLabel, personalRelief: state.personalRelief, sources: [] };
+  renderAll();
+}
+
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sl-tax-fy-${state.fyLabel.replace('/', '-')}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importJSON() {
+  document.getElementById('import-file').click();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  renderAll();
+
+  // Global live-formatter — adds commas as you type in any numeric input.
+  // Uses capture phase so it runs BEFORE inline oninput handlers, ensuring
+  // the value passed to parseNum() is already formatted (parseNum strips commas).
+  document.addEventListener('input', (e) => {
+    if (e.target && e.target.matches && e.target.matches('input[inputmode="decimal"]')) {
+      formatLive(e.target);
+    }
+  }, true);
+
+  document.getElementById('fy-label').addEventListener('input', e => {
+    state.fyLabel = e.target.value;
+    document.getElementById('fy-label-display').textContent = e.target.value;
+    save();
+  });
+
+  const reliefInput = document.getElementById('personal-relief');
+  reliefInput.addEventListener('input', e => {
+    state.personalRelief = parseNum(e.target.value);
+    save();
+    renderSummary();
+  });
+  reliefInput.addEventListener('blur', e => formatField(e.target));
+
+  document.getElementById('import-file').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        if (!parsed.sources || !Array.isArray(parsed.sources)) throw new Error('No sources array');
+        state = normalizeState(parsed);
+        renderAll();
+      } catch (err) {
+        alert('Failed to import: ' + err.message);
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+});
+</script>
+</body>
+</html>

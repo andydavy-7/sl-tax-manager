@@ -1,0 +1,16 @@
+# Personal / sensitive data — never commit
+MIT PaySlips/
+FY2025-26 Tax Summary.md
+tax_manager.py
+
+# Editor / OS
+.DS_Store
+*.log
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude
+.claude/
+memory/

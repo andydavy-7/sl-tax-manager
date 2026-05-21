@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://andydavy-7.github.io/sl-tax-manager/sitemap.xml
