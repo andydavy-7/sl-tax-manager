@@ -683,6 +683,127 @@
   .ico-sm { width: 14px; height: 14px; }
   .ico    { width: 16px; height: 16px; }
   .ico-lg { width: 20px; height: 20px; }
+
+  /* ── Mobile: sticky balance bar + FAB ─────────────────────────────── */
+  .mobile-balance-bar {
+    display: none;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: #fef3c7;
+    border-top: 2px solid #f59e0b;
+    padding: 12px 18px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    z-index: 50;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 -2px 16px rgba(0,0,0,0.08);
+  }
+  .mobile-balance-bar.refund {
+    background: #d1fae5;
+    border-top-color: #10b981;
+  }
+  .mobile-balance-bar .label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #92400e;
+    font-family: var(--font-sans);
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+  .mobile-balance-bar.refund .label { color: #065f46; }
+  .mobile-balance-bar .amount {
+    font-size: 19px;
+    font-weight: 700;
+    color: #92400e;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums slashed-zero;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .mobile-balance-bar.refund .amount { color: #065f46; }
+
+  .mobile-fab {
+    display: none;
+    position: fixed;
+    right: 16px;
+    bottom: 76px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    border: none;
+    box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35), 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 55;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    padding: 0;
+  }
+  .mobile-fab:hover { background: var(--accent-hover); }
+  .mobile-fab:active { transform: scale(0.94); }
+  .mobile-fab svg { width: 24px; height: 24px; flex-shrink: 0; }
+
+  @media (max-width: 768px) {
+    .mobile-balance-bar { display: flex; }
+    .mobile-fab { display: inline-flex; }
+    body { padding-bottom: 88px; }
+
+    /* Bigger touch targets */
+    button { min-height: 40px; padding: 8px 14px; }
+    button.small { min-height: 34px; padding: 7px 11px; }
+    button.icon-only { padding: 10px; }
+    button.icon-only.small { padding: 8px; }
+    input, select { min-height: 40px; padding: 9px 12px; font-size: 15px; }
+    .month-grid td input { min-height: 36px; padding: 7px 8px; min-width: 84px; }
+    input[type="checkbox"] { width: 18px; height: 18px; }
+
+    .app-header { padding: 12px 16px; }
+    .layout { padding: 14px; }
+    .card { padding: 16px; }
+    .grand-total { padding: 20px 18px; margin: 14px -16px -16px; font-size: 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .app-header h1 { font-size: 13px; gap: 8px; }
+    .app-header h1 .subtitle {
+      font-size: 11px;
+      padding-left: 8px;
+      margin-left: 2px;
+    }
+    .app-header h1 .brand-mark { width: 24px; height: 24px; font-size: 10px; }
+
+    /* Icon-only toolbar buttons on phones (FAB handles Add) */
+    .toolbar { gap: 4px; }
+    .toolbar button span { display: none; }
+    .toolbar button { padding: 9px; }
+    .toolbar-sep { display: none; }
+    .toolbar button.primary { display: none; }
+
+    .source-card-head {
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+    .source-card-head .name-input { grid-column: 1 / -1; }
+    .source-card-head select { grid-column: 1; }
+    .source-card-head button { grid-column: 2; grid-row: 2; }
+    .source-card-head .checkbox-label {
+      grid-column: 1 / -1;
+      padding: 6px 0;
+    }
+
+    .bulk-fill {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .bulk-fill .label { min-width: 100%; }
+    .bulk-fill input { flex: 1; min-width: 0; }
+  }
 </style>
 </head>
 <body>
@@ -776,6 +897,19 @@
 <div class="footer-note">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
   Data saved locally to this browser — use Export to back up.
+</div>
+
+<!-- Mobile FAB (Add Source) -->
+<button class="mobile-fab" onclick="addSource()" aria-label="Add new income source" title="Add source">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+</button>
+
+<!-- Mobile sticky balance bar -->
+<div class="mobile-balance-bar balance" id="mobile-balance-bar">
+  <div>
+    <div class="label" id="mobile-balance-label">Balance Tax to Pay</div>
+    <div class="amount" id="mobile-balance-amount">LKR 0.00</div>
+  </div>
 </div>
 
 <input type="file" id="import-file" accept=".json" style="display:none">
@@ -1154,6 +1288,18 @@ function renderSummary() {
       <span>LKR ${fmt(Math.abs(balance))}</span>
     </div>
   `;
+
+  // Mirror to mobile sticky bar
+  const mBar = document.getElementById('mobile-balance-bar');
+  const mLabel = document.getElementById('mobile-balance-label');
+  const mAmount = document.getElementById('mobile-balance-amount');
+  if (mBar && mLabel && mAmount) {
+    const isRefundClass = grandClass === 'refund';
+    mBar.classList.toggle('refund', isRefundClass);
+    mBar.classList.toggle('balance', !isRefundClass);
+    mLabel.textContent = grandLabel;
+    mAmount.textContent = `LKR ${fmt(Math.abs(balance))}`;
+  }
 }
 
 function renderIncomeBreakdown(sourceData, totalIncome, totalTaxWithheld) {
