@@ -684,6 +684,131 @@
   .ico    { width: 16px; height: 16px; }
   .ico-lg { width: 20px; height: 20px; }
 
+  /* ── Modal (CSV preview) ──────────────────────────────────────────── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.visible { display: flex; }
+  .modal {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .modal-subtitle {
+    color: var(--text-muted);
+    font-size: 12px;
+    margin-bottom: 18px;
+  }
+  .modal-summary {
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .modal-summary .stat { display: flex; flex-direction: column; }
+  .modal-summary .stat .num {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    line-height: 1.2;
+  }
+  .modal-summary .stat .lbl {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-family: var(--font-sans);
+  }
+  .modal-errors, .modal-warnings {
+    background: var(--danger-bg);
+    border-left: 3px solid var(--danger);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    color: var(--danger);
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .modal-warnings {
+    background: var(--warning-bg);
+    border-left-color: var(--warning);
+    color: var(--warning);
+  }
+  .modal-errors-title, .modal-warnings-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-family: var(--font-sans);
+  }
+  .modal-errors ul, .modal-warnings ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .modal-preview {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 18px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .modal-preview-row {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .modal-preview-row:last-child { border-bottom: none; }
+  .modal-preview-row .info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .modal-preview-row .nm { font-weight: 500; color: var(--text); }
+  .modal-preview-row .meta { font-size: 11px; color: var(--text-muted); }
+  .modal-preview-row .tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+  }
+  .modal-preview-row .tag.merge { background: var(--accent-bg); color: var(--accent); }
+  .modal-preview-row .tag.new   { background: #fef3c7; color: #92400e; }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+  }
+  .modal-actions button { min-width: 100px; justify-content: center; }
+
   /* ── Mobile: sticky balance bar + FAB ─────────────────────────────── */
   .mobile-balance-bar {
     display: none;
@@ -820,13 +945,22 @@
       <span>Add Source</span>
     </button>
     <div class="toolbar-sep"></div>
-    <button onclick="exportJSON()" title="Download data as JSON">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-      <span>Export</span>
+    <button onclick="openCsvUpload()" title="Bulk import sources from a CSV spreadsheet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></svg>
+      <span>Upload CSV</span>
     </button>
-    <button onclick="importJSON()" title="Import data from JSON file">
+    <button onclick="downloadCsvTemplate()" title="Download a sample CSV template" class="ghost">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>
+      <span>Template</span>
+    </button>
+    <div class="toolbar-sep"></div>
+    <button onclick="exportJSON()" title="Download data as JSON backup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+      <span>Export JSON</span>
+    </button>
+    <button onclick="importJSON()" title="Restore data from JSON backup">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-      <span>Import</span>
+      <span>Import JSON</span>
     </button>
     <div class="toolbar-sep"></div>
     <button class="danger" onclick="clearAll()" title="Clear all data">
@@ -912,7 +1046,24 @@
   </div>
 </div>
 
+<!-- CSV preview modal -->
+<div class="modal-overlay" id="csv-modal">
+  <div class="modal" role="dialog" aria-labelledby="csv-modal-title">
+    <h2 class="modal-title" id="csv-modal-title">Import CSV</h2>
+    <p class="modal-subtitle">Sources will be smart-merged by name — existing sources get their matching months overwritten; new names become new sources.</p>
+    <div id="csv-modal-body"></div>
+    <div class="modal-actions">
+      <button onclick="closeCsvModal()">Cancel</button>
+      <button class="primary" id="csv-apply-btn" onclick="applyCsvImport()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Apply Import</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="import-file" accept=".json" style="display:none">
+<input type="file" id="csv-import-file" accept=".csv,text/csv" style="display:none">
 
 <script>
 const STORAGE_KEY = 'slTaxManager_v1';
@@ -1438,6 +1589,267 @@ function importJSON() {
   document.getElementById('import-file').click();
 }
 
+// ── CSV bulk upload ───────────────────────────────────────────────────────
+
+const MONTH_LOOKUP = {
+  jan: 9, january: 9,
+  feb: 10, february: 10,
+  mar: 11, march: 11,
+  apr: 0,  april: 0,
+  may: 1,
+  jun: 2,  june: 2,
+  jul: 3,  july: 3,
+  aug: 4,  august: 4,
+  sep: 5,  sept: 5, september: 5,
+  oct: 6,  october: 6,
+  nov: 7,  november: 7,
+  dec: 8,  december: 8
+};
+
+function parseMonthIndex(s) {
+  if (!s) return -1;
+  const m = String(s).trim().toLowerCase().match(/[a-z]+/);
+  if (!m) return -1;
+  const idx = MONTH_LOOKUP[m[0]];
+  return idx == null ? -1 : idx;
+}
+
+// CSV line parser supporting quoted fields with embedded commas / "" escapes
+function parseCsvLine(line) {
+  const out = [];
+  let cur = '';
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else cur += c;
+    } else {
+      if (c === '"') inQ = true;
+      else if (c === ',') { out.push(cur); cur = ''; }
+      else cur += c;
+    }
+  }
+  out.push(cur);
+  return out.map(s => s.trim());
+}
+
+function parseCsvText(text) {
+  const required = ['source_name', 'type', 'month', 'income', 'tax_deducted', 'tax_withheld_at_source'];
+  const validTypes = ['employment', 'consultancy', 'interest', 'other'];
+  const truthy = ['yes', 'true', '1', 'y'];
+
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  if (lines.length < 2) {
+    return { rows: [], errors: ['File appears to be empty or missing data rows.'], warnings: [] };
+  }
+
+  const headers = parseCsvLine(lines[0]).map(h => h.toLowerCase().trim());
+  const missing = required.filter(h => !headers.includes(h));
+  if (missing.length) {
+    return {
+      rows: [],
+      errors: [`Missing required columns: ${missing.join(', ')}. Expected: ${required.join(', ')}.`],
+      warnings: []
+    };
+  }
+
+  const rows = [];
+  const errors = [];
+  const warnings = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cells = parseCsvLine(lines[i]);
+    if (cells.length === 1 && !cells[0]) continue;
+    const row = {};
+    headers.forEach((h, idx) => { row[h] = (cells[idx] || '').trim(); });
+
+    if (!row.source_name) {
+      errors.push(`Row ${i+1}: source_name is empty.`);
+      continue;
+    }
+    const type = row.type.toLowerCase();
+    if (!validTypes.includes(type)) {
+      errors.push(`Row ${i+1}: invalid type "${row.type}" (allowed: ${validTypes.join(', ')}).`);
+      continue;
+    }
+    const monthIdx = parseMonthIndex(row.month);
+    if (monthIdx < 0) {
+      errors.push(`Row ${i+1}: cannot parse month "${row.month}".`);
+      continue;
+    }
+    const income = Number(String(row.income).replace(/,/g, '')) || 0;
+    const tax = Number(String(row.tax_deducted).replace(/,/g, '')) || 0;
+    const withheld = truthy.includes(row.tax_withheld_at_source.toLowerCase());
+
+    if (income === 0 && tax === 0) {
+      warnings.push(`Row ${i+1}: "${row.source_name}" ${row.month} has zero income and zero tax (skipped).`);
+      continue;
+    }
+    rows.push({ sourceName: row.source_name, type, monthIdx, income, tax, taxWithheld: withheld });
+  }
+  return { rows, errors, warnings };
+}
+
+// Group parsed rows into sources keyed by name+type
+function groupCsvRows(rows) {
+  const groups = new Map();
+  for (const r of rows) {
+    const key = r.sourceName.trim().toLowerCase() + '|' + r.type;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        name: r.sourceName.trim(),
+        type: r.type,
+        taxWithheld: false,
+        months: emptyMonths(),
+        anyTaxFlag: false,
+        monthsWithData: 0
+      });
+    }
+    const g = groups.get(key);
+    g.months[r.monthIdx] = { income: r.income, tax: r.tax };
+    g.monthsWithData += 1;
+    if (r.taxWithheld) g.anyTaxFlag = true;
+  }
+  // Set taxWithheld: true if ANY row for that source had withheld=yes
+  for (const g of groups.values()) g.taxWithheld = g.anyTaxFlag;
+  return Array.from(groups.values());
+}
+
+// Decide for each group whether it matches an existing source (smart-merge)
+function planMerge(groups) {
+  const existingByName = new Map();
+  for (const s of state.sources) {
+    existingByName.set(s.name.trim().toLowerCase(), s);
+  }
+  return groups.map(g => {
+    const existing = existingByName.get(g.name.trim().toLowerCase());
+    return { group: g, existing, action: existing ? 'merge' : 'new' };
+  });
+}
+
+let pendingCsvPlan = null;
+
+function openCsvUpload() {
+  document.getElementById('csv-import-file').click();
+}
+
+function downloadCsvTemplate() {
+  // Try to download from the deployed location first; fall back to generated content
+  const a = document.createElement('a');
+  a.href = 'sample-tax-data.csv';
+  a.download = 'sample-tax-data.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function showCsvModal(plan, errors, warnings, totalRows) {
+  pendingCsvPlan = plan;
+  const body = document.getElementById('csv-modal-body');
+  const merges = plan.filter(p => p.action === 'merge').length;
+  const news = plan.filter(p => p.action === 'new').length;
+  const applyBtn = document.getElementById('csv-apply-btn');
+  const canApply = plan.length > 0 && errors.length === 0;
+  applyBtn.disabled = !canApply;
+  applyBtn.style.opacity = canApply ? '1' : '0.5';
+  applyBtn.style.pointerEvents = canApply ? 'auto' : 'none';
+
+  let html = '';
+
+  if (errors.length) {
+    html += `<div class="modal-errors">
+      <div class="modal-errors-title">${errors.length} error${errors.length === 1 ? '' : 's'} — fix and re-upload:</div>
+      <ul>${errors.slice(0, 20).map(e => `<li>${escapeHtml(e)}</li>`).join('')}</ul>
+      ${errors.length > 20 ? `<div style="margin-top:4px">…and ${errors.length - 20} more</div>` : ''}
+    </div>`;
+  }
+
+  if (warnings.length) {
+    html += `<div class="modal-warnings">
+      <div class="modal-warnings-title">${warnings.length} warning${warnings.length === 1 ? '' : 's'}:</div>
+      <ul>${warnings.slice(0, 10).map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul>
+      ${warnings.length > 10 ? `<div style="margin-top:4px">…and ${warnings.length - 10} more</div>` : ''}
+    </div>`;
+  }
+
+  html += `<div class="modal-summary">
+    <div class="stat"><span class="num">${plan.length}</span><span class="lbl">Sources</span></div>
+    <div class="stat"><span class="num">${totalRows}</span><span class="lbl">Rows imported</span></div>
+    <div class="stat"><span class="num">${merges}</span><span class="lbl">Smart merge</span></div>
+    <div class="stat"><span class="num">${news}</span><span class="lbl">New</span></div>
+  </div>`;
+
+  if (plan.length) {
+    html += `<div class="modal-preview">${plan.map(p => {
+      const totalIncome = p.group.months.reduce((a, m) => a + m.income, 0);
+      const totalTax = p.group.months.reduce((a, m) => a + m.tax, 0);
+      return `
+        <div class="modal-preview-row">
+          <div class="info">
+            <div class="nm">
+              <span class="badge ${p.group.type}">${p.group.type}</span>
+              ${escapeHtml(p.group.name)}
+            </div>
+            <div class="meta">${p.group.monthsWithData} month${p.group.monthsWithData === 1 ? '' : 's'} · Income ${fmt(totalIncome)} · Tax ${fmt(totalTax)}</div>
+          </div>
+          <span class="tag ${p.action}">${p.action === 'merge' ? 'merge → ' + escapeHtml(p.existing.name) : 'new source'}</span>
+        </div>
+      `;
+    }).join('')}</div>`;
+  }
+
+  body.innerHTML = html;
+  document.getElementById('csv-modal').classList.add('visible');
+}
+
+function closeCsvModal() {
+  document.getElementById('csv-modal').classList.remove('visible');
+  pendingCsvPlan = null;
+}
+
+function applyCsvImport() {
+  if (!pendingCsvPlan) return;
+  for (const p of pendingCsvPlan) {
+    if (p.action === 'merge') {
+      // Overwrite only the months that have data in the CSV; keep other existing months
+      for (let i = 0; i < 12; i++) {
+        const m = p.group.months[i];
+        if (m.income !== 0 || m.tax !== 0) {
+          p.existing.months[i] = { income: m.income, tax: m.tax };
+        }
+      }
+      // Update tax-withheld flag if any incoming row indicated yes
+      if (p.group.taxWithheld) p.existing.taxWithheld = true;
+      // Update type if it differs (unlikely but possible)
+      if (p.existing.type !== p.group.type) p.existing.type = p.group.type;
+    } else {
+      state.sources.push({
+        id: uuid(),
+        name: p.group.name,
+        type: p.group.type,
+        taxWithheld: p.group.taxWithheld,
+        months: p.group.months
+      });
+    }
+  }
+  closeCsvModal();
+  renderAll();
+}
+
+function handleCsvFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const text = String(ev.target.result || '');
+    const { rows, errors, warnings } = parseCsvText(text);
+    const groups = groupCsvRows(rows);
+    const plan = planMerge(groups);
+    showCsvModal(plan, errors, warnings, rows.length);
+  };
+  reader.onerror = () => alert('Failed to read CSV file.');
+  reader.readAsText(file);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1483,6 +1895,24 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.value = '';
     };
     reader.readAsText(file);
+  });
+
+  // CSV file picker
+  document.getElementById('csv-import-file').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    handleCsvFile(file);
+    e.target.value = '';
+  });
+
+  // Click outside modal to dismiss
+  document.getElementById('csv-modal').addEventListener('click', e => {
+    if (e.target.id === 'csv-modal') closeCsvModal();
+  });
+
+  // ESC dismisses modal
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeCsvModal();
   });
 });
 </script>
