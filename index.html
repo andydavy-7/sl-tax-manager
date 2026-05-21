@@ -2,8 +2,104 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SL Personal Income Tax Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SL Personal Income Tax Manager — Sri Lanka APIT/PAYE Calculator FY 2025/26</title>
+
+<!-- Primary meta -->
+<meta name="description" content="Free Sri Lanka personal income tax calculator for FY 2025/26. Reconcile APIT/PAYE across multiple employers, see slab-by-slab tax breakdown, import via CSV, and calculate your balance to pay or refund due. 100% client-side — your data stays in your browser.">
+<meta name="keywords" content="Sri Lanka income tax calculator, APIT calculator Sri Lanka, PAYE calculator Sri Lanka, Sri Lanka tax FY 2025/26, SL personal income tax, Sri Lanka tax slabs 2025, multiple employer tax reconciliation, EPF ETF Sri Lanka, IRD Sri Lanka tax">
+<meta name="author" content="Andrew Davy">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://andydavy-7.github.io/sl-tax-manager/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://andydavy-7.github.io/sl-tax-manager/">
+<meta property="og:title" content="SL Personal Income Tax Manager — FY 2025/26">
+<meta property="og:description" content="Free Sri Lanka personal income tax calculator. Reconcile APIT/PAYE across multiple employers with slab-by-slab breakdown. 100% client-side.">
+<meta property="og:locale" content="en_LK">
+<meta property="og:site_name" content="SL Personal Income Tax Manager">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:url" content="https://andydavy-7.github.io/sl-tax-manager/">
+<meta name="twitter:title" content="SL Personal Income Tax Manager — FY 2025/26">
+<meta name="twitter:description" content="Free Sri Lanka personal income tax calculator. Reconcile APIT/PAYE across multiple employers with slab-by-slab breakdown. 100% client-side.">
+
+<!-- Favicon (inline SVG, teal LK badge) -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230d9488'/><text x='16' y='22' font-family='ui-monospace,monospace' font-weight='700' font-size='13' fill='white' text-anchor='middle'>LK</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230d9488'/><text x='16' y='22' font-family='ui-monospace,monospace' font-weight='700' font-size='13' fill='white' text-anchor='middle'>LK</text></svg>">
+
+<!-- JSON-LD: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "SL Personal Income Tax Manager",
+  "alternateName": "Sri Lanka APIT Calculator",
+  "description": "Free Sri Lanka personal income tax calculator for FY 2025/26 (Year of Assessment 2025/26). Reconcile APIT/PAYE withholdings across multiple employers, calculate tax slab-by-slab, import via CSV, and find your balance to pay or refund due. 100% client-side.",
+  "url": "https://andydavy-7.github.io/sl-tax-manager/",
+  "applicationCategory": "FinanceApplication",
+  "applicationSubCategory": "Tax Calculator",
+  "operatingSystem": "Any (web-based)",
+  "browserRequirements": "Requires JavaScript",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "LKR" },
+  "creator": { "@type": "Person", "name": "Andrew Davy" },
+  "inLanguage": "en",
+  "audience": { "@type": "Audience", "audienceType": "Sri Lankan taxpayers" }
+}
+</script>
+
+<!-- JSON-LD: FAQ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What are the Sri Lanka personal income tax slabs for FY 2025/26?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For FY 2025/26, Sri Lanka uses these progressive slabs after a personal relief of LKR 1,800,000: First LKR 1,000,000 at 6%, next LKR 500,000 at 18%, next LKR 500,000 at 24%, next LKR 500,000 at 30%, and balance above LKR 4,300,000 at 36%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the personal relief in Sri Lanka for FY 2025/26?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The personal relief (tax-free threshold) for resident individuals in Sri Lanka for FY 2025/26 is LKR 1,800,000 per year, or LKR 150,000 per month."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is APIT calculated when I have multiple employers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each employer calculates APIT based only on the income they pay you, typically annualising each month's payment. This often results in over-withholding (refund due) or under-withholding (balance to pay) when you file your annual return. This calculator reconciles all sources to find your true tax liability."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are reimbursable allowances taxable in Sri Lanka?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Genuine reimbursements against actual expense receipts (fuel, communication, entertainment, medical) are not taxable as they do not represent a gain to the employee. Fixed monthly cash allowances paid without expense receipts are taxable employment income under the Inland Revenue Act 2017."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this calculator save my data anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. All data is stored only in your browser's localStorage. Nothing is sent to any server. The entire calculator is a single HTML file that runs 100% client-side. View the source on GitHub to verify."
+      }
+    }
+  ]
+}
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
